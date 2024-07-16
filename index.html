@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebSocket Chat</title>
+  </head>
+  <body>
+    <textarea id="messageBox" rows="10" cols="50"></textarea>
+    <script>
+      const ws = new WebSocket("ws://localhost:8000/ws");
+
+      const messageBox = document.getElementById("messageBox");
+
+      ws.onopen = () => {
+        console.log("Connected to the server");
+      };
+
+      ws.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        if (message.type === "message") {
+          messageBox.value = message.text ?? "";
+        } else if (message.type === "user-place") {
+          // Handle user-place event
+        }
+      };
+
+      messageBox.addEventListener("input", () => {
+        const message = { type: "message", text: messageBox.value };
+        console.log({ message });
+        ws.send(JSON.stringify(message));
+      });
+
+      ws.onclose = () => {
+        console.log("Disconnected from the server");
+      };
+
+      ws.onerror = (error) => {
+        console.error("WebSocket error:", error);
+      };
+    </script>
+  </body>
+</html>
